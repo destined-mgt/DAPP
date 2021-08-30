@@ -1,0 +1,13 @@
+# 文件上传
+# @reciver:文件接收方账户地址
+# @swarmId:待发送文件在swarm网络中的ID
+POST http://127.0.0.1:8000/blockchain/upload/
+Content-Type: application/x-www-form-urlencoded
+
+swarmId=763571c747d4252ecdcabc0633cccfdfe55581ba0dd1e716876f1af306866fff&reciver=0x801FD03AfBe1c9FCBaE77bDc03C7812Ad9776d60
+
+###
+
+
+
+
