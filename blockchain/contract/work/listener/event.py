@@ -14,6 +14,7 @@ from blockchain.contract.work.function.func_SubmitModel import SubmitModel
 from blockchain.contract.work.function.func_Verify import Verify
 from interface.MergeModels import MergeModels
 from interface.Score import Score
+from utility import Log
 
 flter_reward = contract.events.reward.createFilter(fromBlock="latest")
 # 监听结束设置阶段事件
@@ -77,6 +78,7 @@ def WorkLoop(work_status=10):
                 sc = Score(model)
                 # 模型上传
                 Verify(mag, sc)
+                Log.logger.info("model:%s,score:%s" % (str(model), str(sc)))
             localTime = time.time()
             if localTime - startVerifyModelTime > verifyModelTime:
                 result = NextStep(mag)
@@ -97,6 +99,7 @@ def WorkLoop(work_status=10):
                 model = MergeModels(mag, models)
                 # 模型上传
                 Merge(mag, model)
+                Log.logger.info("models:%s => mode:%s" % (str(models), str(model)))
             localTime = time.time()
             if localTime - startMergeModelTime > mergeModelTime:
                 result = NextStep(mag)
@@ -106,7 +109,6 @@ def WorkLoop(work_status=10):
         if event_submitModel:
             work_status = max(11, work_status)
             startSubmitModelTime = event_submitModel[0]['args']['startTime']
-            print(startSubmitModelTime)
             # 提交模型
             model = "0x7465737400000000000000000000000000000000000000000000000000000001"
             SubmitModel(mag, model)
@@ -119,10 +121,10 @@ def WorkLoop(work_status=10):
             if model:
                 # TODO:swarmID=>file
                 # 模型打分(暴露)
-                sc = Score( model)
+                sc = Score(model)
                 # 模型上传
                 Verify(mag, sc)
-                print("model", model, " score:", sc)
+                Log.logger.info("model:%s,score:%s" % (str(model), str(sc)))
         if event_mergeModel:
             work_status = max(15, work_status)
             startMergeModelTime = event_mergeModel[0]['args']['startTime']
@@ -135,19 +137,20 @@ def WorkLoop(work_status=10):
                 model = MergeModels(models)
                 # 模型上传
                 Merge(mag, model)
+                Log.logger.info("models:%s => mode:%s" % (str(models), str(model)))
         if event_modelscore:
-            print("****result-model****:", event_modelscore[0]['args']['model'], "score:",
-                  event_modelscore[0]['args']['score'])
-        if event_finalscore:
-            print("****final-model****:", event_finalscore[0]['args']['model'], "score:",
-                  event_finalscore[0]['args']['score'])
+            Log.logger.info("****result-model****:%s" % str(event_modelscore[0]['args']['model']))
+            Log.logger.info("****score****:%s" % str(event_modelscore[0]['args']['score']))
+            if event_finalscore:
+                Log.logger.info("****final-model****:%s" % str(event_finalscore[0]['args']['model']))
+                Log.logger.info("****score****:%s" % str(event_finalscore[0]['args']['score']))
             work_status = 16
-        print("current status:", work_status)
+        Log.logger.info("current status:%s" % str(work_status))
         from blockchain.scheduler.scheduler import Switch
         needSwtich, loop = Switch(work_status, "work")
         if needSwtich:
             loop.start()
-            break
+        break
 
 
 listen_thread_Work = threading.Thread(target=WorkLoop)

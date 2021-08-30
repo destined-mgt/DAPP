@@ -1,0 +1,7 @@
+[blockchain]
+# 密码文件位置
+bc_pwd_file='./blockchain/account/pwd.password'
+# rpc地址
+bc_websocket_provider='ss://rinkeby.infura.io/ws/v3/7ecf51085fe840f49fcea75636976335'
+# 交互地址
+bc_interface_addr='127.0.0.1'

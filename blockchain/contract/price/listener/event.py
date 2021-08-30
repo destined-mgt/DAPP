@@ -8,6 +8,7 @@ from blockchain.contract.price.conn_price import contract
 from blockchain.contract.price.function.func_Buy import Buy
 from blockchain.contract.price.function.func_DecidePrice import DecidePrice
 from blockchain.contract.price.function.func_NextStep import NextStep
+from utility import Log
 
 flter_reward = contract.events.reward.createFilter(fromBlock="latest")
 flter_decidePrice = contract.events.decidePrice.createFilter(fromBlock="latest")
@@ -45,6 +46,7 @@ def PriceLoop(Price_status=4):
             if result['error'] is None:
                 Price_status = result['status']
         elif Price_status == 7:
+            # 读取参数，是否购买模型
             if price >= 0:
                 Buy(mag, price)
             localTime = time.time()
@@ -56,22 +58,22 @@ def PriceLoop(Price_status=4):
         if event_decidePrice:
             Price_status = max(5, Price_status)
             startDecidePriceTime = event_decidePrice[0]['args']['startTime']
-            print(startDecidePriceTime)
             # 提交一次
             DecidePrice(mag, 600)
         if event_finalPrice:
             Price_status = max(6, Price_status)
             price = event_finalPrice[0]['args']['price']
-            print("****price****:", price)
+            Log.logger.info("****final price****:%s" % str(price))
 
         if event_buyModel:
             Price_status = max(7, Price_status)
             startBuyTime = event_buyModel[0]['args']['startTime']
             price = event_buyModel[0]['args']['price']
+            # 读取参数是否购买模型
             if price >= 0:
                 Buy(mag, price)
 
-        print("current status:", Price_status)
+        Log.logger.info("current status:%s" % str(Price_status))
         from blockchain.scheduler.scheduler import Switch
         needSwtich, loop = Switch(Price_status, "price")
         if needSwtich:

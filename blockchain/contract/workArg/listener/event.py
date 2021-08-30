@@ -7,6 +7,7 @@ from web3 import Web3
 from blockchain.contract.workArg.conn_workArg import contract
 from blockchain.contract.workArg.function.func_DecideC import DecideC
 from blockchain.contract.workArg.function.func_NextStep import NextStep
+from utility import Log
 
 flter_reward = contract.events.reward.createFilter(fromBlock="latest")
 flter_decideC = contract.events.decideC.createFilter(fromBlock="latest")
@@ -40,20 +41,18 @@ def WorkArgLoop(workArg_status=8):
         if event_decideC:
             workArg_status = max(9, workArg_status)
             startDecideCTime = event_decideC[0]['args']['startTime']
-            print(startDecideCTime)
             # 提交一次
             DecideC(mag, 60)
         if event_finalC:
             workArg_status = max(10, workArg_status)
             acc = event_finalC[0]['args']['c']
-            print("****acc****:", acc)
-            # 每当接受该指令，线程关闭，引导下一线程启动
-        print("current status:", workArg_status)
+            Log.logger.info("****acc****:%s" % str(acc))
+        # 每当接受该指令，线程关闭，引导下一线程启动
+        Log.logger.info("current status:%s" % str(workArg_status))
         from blockchain.scheduler.scheduler import Switch
         needSwtich, loop = Switch(workArg_status, "workArg")
         if needSwtich:
             loop.start()
             break
 
-
-listen_thread_WorkArg = threading.Thread(target=WorkArgLoop)
+    listen_thread_WorkArg = threading.Thread(target=WorkArgLoop)

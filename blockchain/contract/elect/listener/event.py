@@ -9,7 +9,7 @@ from blockchain.contract.elect.function.func_Close import Close
 from blockchain.contract.elect.function.func_DecideTime import DecideTime
 from blockchain.contract.elect.function.func_Elect import Elect
 from blockchain.contract.elect.function.func_NextStep import NextStep
-from blockchain.contract.price.listener.event import listen_thread_Price, PriceLoop
+from utility import Log
 
 flter_reward = contract.events.reward.createFilter(fromBlock="latest")
 flter_startSetting = contract.events.startSetting.createFilter(fromBlock="latest")
@@ -62,7 +62,8 @@ def ElectLoop(elect_status=0):
                 if result['error'] is None:
                     elect_status = result['status']
         elif elect_status == 16:
-            print("推动结束本轮")
+            Log.logger.info("***loop end***")
+            # 读取配置文件，获取是否进行下一轮的数据
             result = NextStep(mag)
             if result['error'] is None:
                 elect_status = result['status']
@@ -82,14 +83,14 @@ def ElectLoop(elect_status=0):
         if event_endSetting:
             elect_status = max(2, elect_status)
             finalTime = event_endSetting[0]['args']['finalTime']
-            print("****elect time****:", finalTime)
+            Log.logger.info("****elect time****:%s" % str(finalTime))
         if event_startElect:
             elect_status = max(3, elect_status)
             electStartTime = event_startElect[0]['args']['startTime']
         if event_endElect:
             elect_status = max(4, elect_status)
             committees = event_endElect[0]['args']['committees']
-            print("****committees****:", committees)
+            Log.logger.info("****committees****:%s" % str(committees))
         if event_work:
             elect_status = max(16, elect_status)
         if event_reply:
@@ -97,9 +98,9 @@ def ElectLoop(elect_status=0):
             replyStartTime = event_reply[0]['args']['startTime']
         if event_newLoop:
             elect_status = 0
-            print("****END****")
+            Log.logger.info("****start loop****")
 
-        print("current status:", elect_status)
+        Log.logger.info("current status:%s" % str(elect_status))
         from blockchain.scheduler.scheduler import Switch
         needSwtich, loop = Switch(elect_status, "elect")
         if needSwtich:
