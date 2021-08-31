@@ -15,6 +15,7 @@ from blockchain.contract.work.function.func_Verify import Verify
 from interface.MergeModels import MergeModels
 from interface.Score import Score
 from utility import Log
+from utility.ParseConfig import GetConfig
 
 flter_reward = contract.events.reward.createFilter(fromBlock="latest")
 # 监听结束设置阶段事件
@@ -52,8 +53,11 @@ def WorkLoop(work_status=10):
                 work_status = result['status']
         elif work_status == 11:
             # 模型提交阶段，推动该阶段结束
-            model = "0x7465737400000000000000000000000000000000000000000000000000000001"
-            SubmitModel(mag, model)
+            cfg = GetConfig("config")
+            is_need_upload_model = cfg.getboolean("DAPP", "is_need_upload_model")
+            if is_need_upload_model:
+                upload_model = cfg.get("DAPP", "upload_model")
+                SubmitModel(mag, upload_model)
             localTime = time.time()
             if localTime - startSubmitModelTime > sbumitModelTime:
                 result = NextStep(mag)
@@ -109,9 +113,11 @@ def WorkLoop(work_status=10):
         if event_submitModel:
             work_status = max(11, work_status)
             startSubmitModelTime = event_submitModel[0]['args']['startTime']
-            # 提交模型
-            model = "0x7465737400000000000000000000000000000000000000000000000000000001"
-            SubmitModel(mag, model)
+            cfg = GetConfig("config")
+            is_need_upload_model = cfg.getboolean("DAPP", "is_need_upload_model")
+            if is_need_upload_model:
+                upload_model = cfg.get("DAPP", "upload_model")
+                SubmitModel(mag, upload_model)
         if event_verifyModel:
             work_status = max(13, work_status)
             startVerifyModelTime = event_verifyModel[0]['args']['startTime']
@@ -141,16 +147,16 @@ def WorkLoop(work_status=10):
         if event_modelscore:
             Log.logger.info("****result-model****:%s" % str(event_modelscore[0]['args']['model']))
             Log.logger.info("****score****:%s" % str(event_modelscore[0]['args']['score']))
-            if event_finalscore:
-                Log.logger.info("****final-model****:%s" % str(event_finalscore[0]['args']['model']))
-                Log.logger.info("****score****:%s" % str(event_finalscore[0]['args']['score']))
+        if event_finalscore:
+            Log.logger.info("****final-model****:%s" % str(event_finalscore[0]['args']['model']))
+            Log.logger.info("****score****:%s" % str(event_finalscore[0]['args']['score']))
             work_status = 16
         Log.logger.info("current status:%s" % str(work_status))
         from blockchain.scheduler.scheduler import Switch
         needSwtich, loop = Switch(work_status, "work")
         if needSwtich:
             loop.start()
-        break
+            break
 
 
 listen_thread_Work = threading.Thread(target=WorkLoop)

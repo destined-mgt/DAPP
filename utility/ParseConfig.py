@@ -1,8 +1,7 @@
 import configparser
 
 
-def GetConfig(path, items):
+def GetConfig(path):
     cf = configparser.ConfigParser()
     cf.read(path)
-    cfg = cf.items(items)
-    return cfg
+    return cf

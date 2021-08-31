@@ -10,6 +10,7 @@ from blockchain.contract.elect.function.func_DecideTime import DecideTime
 from blockchain.contract.elect.function.func_Elect import Elect
 from blockchain.contract.elect.function.func_NextStep import NextStep
 from utility import Log
+from utility.ParseConfig import GetConfig
 
 flter_reward = contract.events.reward.createFilter(fromBlock="latest")
 flter_startSetting = contract.events.startSetting.createFilter(fromBlock="latest")
@@ -44,7 +45,10 @@ def ElectLoop(elect_status=0):
             if result['error'] is None:
                 elect_status = result['status']
         elif elect_status == 1:
-            DecideTime(mag, 5)
+            cfg = GetConfig("config")
+            decide_time = cfg.getint("DAPP", "elect_decide_time")
+            # 读取配置文件
+            DecideTime(mag, decide_time)
             localTime = time.time()
             if localTime - settingStartTime > settingTime:
                 result = NextStep(mag)
@@ -55,7 +59,12 @@ def ElectLoop(elect_status=0):
             if result['error'] is None:
                 elect_status = result['status']
         elif elect_status == 3:
-            Elect(mag, 10)
+            cfg = GetConfig("config")
+            is_need_join_elect = cfg.getboolean("DAPP", "is_need_join_elect")
+            # 读取配置文件
+            if is_need_join_elect:
+                elect_pledge_eth = cfg.getint("DAPP", "elect_pledge_eth")
+                Elect(mag, elect_pledge_eth)
             localTime = time.time()
             if localTime - electStartTime > electTime:
                 result = NextStep(mag)
@@ -63,8 +72,11 @@ def ElectLoop(elect_status=0):
                     elect_status = result['status']
         elif elect_status == 16:
             Log.logger.info("***loop end***")
+            cfg = GetConfig("config")
+            is_need_next_loot = cfg.getboolean("DAPP", "is_need_next_loot")
             # 读取配置文件，获取是否进行下一轮的数据
-            result = NextStep(mag)
+            if is_need_next_loot:
+                result = NextStep(mag)
             if result['error'] is None:
                 elect_status = result['status']
         elif elect_status == 17:
@@ -79,7 +91,10 @@ def ElectLoop(elect_status=0):
             elect_status = max(1, elect_status)
             settingStartTime = event_startSetting[0]['args']['startTime']
             # 提交一次
-            DecideTime(mag, 5)
+            cfg = GetConfig("config")
+            decide_time = cfg.getint("DAPP", "elect_decide_time")
+            # 读取配置文件
+            DecideTime(mag, decide_time)
         if event_endSetting:
             elect_status = max(2, elect_status)
             finalTime = event_endSetting[0]['args']['finalTime']
@@ -87,6 +102,12 @@ def ElectLoop(elect_status=0):
         if event_startElect:
             elect_status = max(3, elect_status)
             electStartTime = event_startElect[0]['args']['startTime']
+            cfg = GetConfig("config")
+            is_need_join_elect = cfg.getboolean("DAPP", "is_need_join_elect")
+            # 读取配置文件
+            if is_need_join_elect:
+                elect_pledge_eth = cfg.getint("DAPP", "elect_pledge_eth")
+                Elect(mag, elect_pledge_eth)
         if event_endElect:
             elect_status = max(4, elect_status)
             committees = event_endElect[0]['args']['committees']

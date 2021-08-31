@@ -1,10 +1,11 @@
 from blockchain.connecter.connecter import conn, private_key
 from blockchain.account.addr import addr
 from blockchain.contract.work.conn_work import contract
+from utility import Log
 
 
 def GetModelToVerify(mag):
-    print("call function: Work.GetModelToVerify")
+    Log.logger.info("call function: Work.GetModelToVerify")
     nonce = conn.eth.getTransactionCount(addr)
     try:
         # 获取函数调用回执

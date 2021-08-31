@@ -1,10 +1,11 @@
 from blockchain.connecter.connecter import conn, private_key
 from blockchain.account.addr import addr
 from blockchain.contract.elect.conn_elect import contract
+from utility import Log
 
 
 def Elect(mag, value):
-    print("call function: Elect.Elect")
+    Log.logger.info("call function: Elect.Elect")
     nonce = conn.eth.getTransactionCount(addr)
     try:
         gas = contract.functions.Elect(mag).estimateGas({"value": value})

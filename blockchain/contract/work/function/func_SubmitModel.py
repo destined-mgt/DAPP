@@ -1,10 +1,11 @@
 from blockchain.connecter.connecter import conn, private_key
 from blockchain.account.addr import addr
 from blockchain.contract.work.conn_work import contract
+from utility import Log
 
 
 def SubmitModel(mag, model):
-    print("call function: Work.SubmitModel")
+    Log.logger.info("call function: Work.SubmitModel")
     nonce = conn.eth.getTransactionCount(addr)
     try:
         gas = contract.functions.SubmitModel(mag, model).estimateGas()

@@ -1,10 +1,11 @@
 from blockchain.connecter.connecter import conn, private_key
 from blockchain.account.addr import addr
 from blockchain.contract.work.conn_work import contract
+from utility import Log
 
 
 def NextStep(mag):
-    print("call function: Work.NextStep")
+    Log.logger.info("call function: Work.NextStep")
     nonce = conn.eth.getTransactionCount(addr)
     try:
         status, isSuc = contract.functions.NextStep(mag).call()

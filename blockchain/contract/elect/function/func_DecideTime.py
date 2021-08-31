@@ -1,10 +1,11 @@
 from blockchain.connecter.connecter import conn, private_key
 from blockchain.account.addr import addr
 from blockchain.contract.elect.conn_elect import contract
+from utility import Log
 
 
 def DecideTime(mag, time):
-    print("call function: Elect.DecideTime")
+    Log.logger.info("call function: Elect.DecideTime")
     nonce = conn.eth.getTransactionCount(addr)
     try:
         gas = contract.functions.DecideTime(mag, time).estimateGas()

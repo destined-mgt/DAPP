@@ -1,10 +1,11 @@
 from blockchain.connecter.connecter import conn, private_key
 from blockchain.account.addr import addr
 from blockchain.contract.work.conn_work import contract
+from utility import Log
 
 
 def GetModelToMerge(mag):
-    print("call function: Work.GetModelToMerge")
+    Log.logger.info("call function: Work.GetModelToMerge")
     nonce = conn.eth.getTransactionCount(addr)
     try:
         models = contract.functions.GetModelsToMerge(mag).call()

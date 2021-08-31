@@ -1,10 +1,11 @@
 from blockchain.connecter.connecter import conn, private_key
 from blockchain.account.addr import addr
 from blockchain.contract.price.conn_price import contract
+from utility import Log
 
 
 def DecidePrice(mag, price):
-    print("call function: Price.DecidePrice")
+    Log.logger.info("call function: Price.DecidePrice")
     nonce = conn.eth.getTransactionCount(addr)
     try:
         gas = contract.functions.DecidePrice(mag, price).estimateGas()

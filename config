@@ -1,7 +1,26 @@
-[blockchain]
+[SYSTEM]
 # 密码文件位置
-bc_pwd_file='./blockchain/account/pwd.password'
+bc_pwd_file=./blockchain/account/pwd.password
+# 密码文件密码
+bc_pwd_file_pwd=ycq5512494
 # rpc地址
-bc_websocket_provider='ss://rinkeby.infura.io/ws/v3/7ecf51085fe840f49fcea75636976335'
+bc_websocket_provider=wss://rinkeby.infura.io/ws/v3/7ecf51085fe840f49fcea75636976335
 # 交互地址
-bc_interface_addr='127.0.0.1'
+bc_interface_addr=127.0.0.1
+[DAPP]
+# 选举阶段投入参数设置
+elect_decide_time=5
+is_need_join_elect=True
+elect_pledge_eth=10
+# 定价阶段投入参数设置
+decide_price=600
+is_need_buy=True
+# 工作参数决定阶段投入参数设置
+decide_c=60
+# 工作阶段投入参数设置
+# 模型是否上传
+is_need_upload_model=True
+# 需要上传的模型
+upload_model=0x7465737400000000000000000000000000000000000000000000000000000001
+# 是否推进下一轮
+is_need_next_loot=True

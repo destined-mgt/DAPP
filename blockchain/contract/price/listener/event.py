@@ -9,6 +9,7 @@ from blockchain.contract.price.function.func_Buy import Buy
 from blockchain.contract.price.function.func_DecidePrice import DecidePrice
 from blockchain.contract.price.function.func_NextStep import NextStep
 from utility import Log
+from utility.ParseConfig import GetConfig
 
 flter_reward = contract.events.reward.createFilter(fromBlock="latest")
 flter_decidePrice = contract.events.decidePrice.createFilter(fromBlock="latest")
@@ -35,7 +36,10 @@ def PriceLoop(Price_status=4):
             if result['error'] is None:
                 Price_status = result['status']
         elif Price_status == 5:
-            DecidePrice(mag, 600)
+            cfg = GetConfig("config")
+            decide_price = cfg.getint("DAPP", "decide_price")
+            # 读取配置文件
+            DecidePrice(mag, decide_price)
             localTime = time.time()
             if localTime - startDecidePriceTime > decidePriceTime:
                 result = NextStep(mag)
@@ -46,8 +50,10 @@ def PriceLoop(Price_status=4):
             if result['error'] is None:
                 Price_status = result['status']
         elif Price_status == 7:
-            # 读取参数，是否购买模型
-            if price >= 0:
+            cfg = GetConfig("config")
+            is_need_buy = cfg.getboolean("DAPP", "is_need_buy")
+            # 读取配置文件
+            if price >= 0 and is_need_buy:
                 Buy(mag, price)
             localTime = time.time()
             if localTime - startBuyTime > buyTime:
@@ -59,7 +65,10 @@ def PriceLoop(Price_status=4):
             Price_status = max(5, Price_status)
             startDecidePriceTime = event_decidePrice[0]['args']['startTime']
             # 提交一次
-            DecidePrice(mag, 600)
+            cfg = GetConfig("config")
+            decide_price = cfg.getint("DAPP", "decide_price")
+            # 读取配置文件
+            DecidePrice(mag, decide_price)
         if event_finalPrice:
             Price_status = max(6, Price_status)
             price = event_finalPrice[0]['args']['price']
@@ -70,7 +79,10 @@ def PriceLoop(Price_status=4):
             startBuyTime = event_buyModel[0]['args']['startTime']
             price = event_buyModel[0]['args']['price']
             # 读取参数是否购买模型
-            if price >= 0:
+            cfg = GetConfig("config")
+            is_need_buy = cfg.getboolean("DAPP", "is_need_buy")
+            # 读取配置文件
+            if price >= 0 and is_need_buy:
                 Buy(mag, price)
 
         Log.logger.info("current status:%s" % str(Price_status))

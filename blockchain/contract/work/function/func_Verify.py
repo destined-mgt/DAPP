@@ -1,10 +1,11 @@
 from blockchain.connecter.connecter import conn, private_key
 from blockchain.account.addr import addr
 from blockchain.contract.work.conn_work import contract
+from utility import Log
 
 
 def Verify(mag, acc):
-    print("call function: Work.Verify")
+    Log.logger.info("call function: Work.Verify")
     nonce = conn.eth.getTransactionCount(addr)
     try:
         gas = contract.functions.Verify(mag, acc).estimateGas()

@@ -8,6 +8,7 @@ from blockchain.contract.workArg.conn_workArg import contract
 from blockchain.contract.workArg.function.func_DecideC import DecideC
 from blockchain.contract.workArg.function.func_NextStep import NextStep
 from utility import Log
+from utility.ParseConfig import GetConfig
 
 flter_reward = contract.events.reward.createFilter(fromBlock="latest")
 flter_decideC = contract.events.decideC.createFilter(fromBlock="latest")
@@ -31,7 +32,9 @@ def WorkArgLoop(workArg_status=8):
                 workArg_status = result['status']
         elif workArg_status == 9:
             # 准确率提交阶段，推动该阶段结束
-            DecideC(mag, 60)
+            cfg = GetConfig("config")
+            decide_c = cfg.getint("DAPP", "decide_c")
+            DecideC(mag, decide_c)
             localTime = time.time()
             if localTime - startDecideCTime > decideCTime:
                 result = NextStep(mag)
@@ -42,7 +45,9 @@ def WorkArgLoop(workArg_status=8):
             workArg_status = max(9, workArg_status)
             startDecideCTime = event_decideC[0]['args']['startTime']
             # 提交一次
-            DecideC(mag, 60)
+            cfg = GetConfig("config")
+            decide_c = cfg.getint("DAPP", "decide_c")
+            DecideC(mag, decide_c)
         if event_finalC:
             workArg_status = max(10, workArg_status)
             acc = event_finalC[0]['args']['c']

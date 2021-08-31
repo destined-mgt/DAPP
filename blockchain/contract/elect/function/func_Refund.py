@@ -1,10 +1,11 @@
 from blockchain.connecter.connecter import conn, private_key
 from blockchain.account.addr import addr
 from blockchain.contract.elect.conn_elect import contract
+from utility import Log
 
 
 def Refund(mag):
-    print("call function: Elect.Refund")
+    Log.logger.info("call function: Elect.Refund")
     nonce = conn.eth.getTransactionCount(addr)
     try:
         gas = contract.functions.Refund(mag).estimateGas()
